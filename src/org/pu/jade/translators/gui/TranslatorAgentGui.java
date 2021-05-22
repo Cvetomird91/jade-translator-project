@@ -2,12 +2,7 @@ package org.pu.jade.translators.gui;
 
 import org.pu.jade.translators.agents.TranslatorAgent;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JList;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -25,7 +20,7 @@ public class TranslatorAgentGui extends JFrame {
         final JFrame frame = new JFrame("frame");
 
         //create a panel
-        JPanel languagesPanel = new JPanel(new GridLayout(1,1));
+        JPanel languagesPanel = new JPanel(new GridLayout(3,3));
 
         //String array to store weekdays
         String languages[]= { "English","French","Bulgarian",
@@ -35,6 +30,16 @@ public class TranslatorAgentGui extends JFrame {
         languagesJlist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         languagesPanel.add(languagesJlist);
         frame.add(languagesPanel);
+
+        JTextField textField = new JTextField(16);
+        JPanel middlePanel = new JPanel();
+        JLabel rateLabel = new JLabel();
+        rateLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        rateLabel.setLabelFor(textField);
+        rateLabel.setText("Rate by word: ");
+        middlePanel.add(rateLabel);
+        middlePanel.add(textField);
+        languagesPanel.add(middlePanel);
 
         JButton selectButton = new JButton("Select languages");
         JPanel bottomPanel = new JPanel();
