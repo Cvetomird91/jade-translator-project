@@ -1,8 +1,17 @@
 package org.pu.jade.translators.gui;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.pu.jade.translators.agents.TranslatorAgent;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JList;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -55,11 +64,24 @@ public class TranslatorAgentGui extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 List<String> selectedValues = languagesJlist.getSelectedValuesList();
+                String rate = textField.getText();
                 System.out.println(languagesJlist.getSelectedValuesList());
+                System.out.println(rate);
 
                 if (selectedValues.size() <= 1) {
                     JOptionPane.showMessageDialog(frame, "error");
+                    return;
                 }
+
+                if (!NumberUtils.isCreatable(rate) || StringUtils.isEmpty(rate)) {
+                    JOptionPane.showMessageDialog(frame, "Rate is empty or not a valid value!");
+                    return;
+                }
+
+                translatorAgent.setSpokenLanguages(selectedValues);
+                translatorAgent.setRatePerWord(Double.parseDouble(rate));
+
+                frame.hide();
             }
         });
 

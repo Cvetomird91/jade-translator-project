@@ -13,10 +13,15 @@ import java.util.List;
 public class TranslatorAgent extends Agent {
 
     List<String> spokenLanguages;
+    Double ratePerWord;
     TranslatorAgentGui gui;
 
     public void setSpokenLanguages(List<String> spokenLanguages) {
         this.spokenLanguages = spokenLanguages;
+    }
+
+    public void setRatePerWord(Double ratePerWord) {
+        this.ratePerWord = ratePerWord;
     }
 
     @Override
