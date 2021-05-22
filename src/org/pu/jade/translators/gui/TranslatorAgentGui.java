@@ -2,8 +2,14 @@ package org.pu.jade.translators.gui;
 
 import org.pu.jade.translators.agents.TranslatorAgent;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JList;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
+
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
