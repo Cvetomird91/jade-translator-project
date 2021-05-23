@@ -1,6 +1,13 @@
 package org.pu.jade.translators.gui;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JTextField;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.ListSelectionModel;
 
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -17,7 +24,7 @@ public class TranslationGuiBase extends JFrame {
     protected JPanel languagesPanel;
 
     public TranslationGuiBase() {
-        frame = new JFrame("frame");
+        frame = new JFrame("Agent Settings");
 
         //create a panel
         languagesPanel = new JPanel(new GridLayout(3,4));
@@ -43,7 +50,7 @@ public class TranslationGuiBase extends JFrame {
         components.add(bottomPanel);
 
         //set the size of frame
-        frame.setSize(400,400);
+        frame.setSize(600,400);
     }
 
     public void show() {

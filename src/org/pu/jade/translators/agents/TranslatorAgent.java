@@ -12,17 +12,11 @@ import java.util.List;
 
 public class TranslatorAgent extends Agent {
 
-    List<String> spokenLanguages;
-    Double ratePerWord;
-    TranslatorAgentGui gui;
-
-    public void setSpokenLanguages(List<String> spokenLanguages) {
-        this.spokenLanguages = spokenLanguages;
-    }
-
-    public void setRatePerWord(Double ratePerWord) {
-        this.ratePerWord = ratePerWord;
-    }
+    private List<String> spokenLanguages;
+    private Double ratePerWord;
+    private Double discountPercentage;
+    private Double wordLimitForDiscount;
+    private TranslatorAgentGui gui;
 
     @Override
     public void setup() {
@@ -51,6 +45,30 @@ public class TranslatorAgent extends Agent {
 
             }
         });
+    }
+
+    public Double getDiscountPercentage() {
+        return discountPercentage;
+    }
+
+    public void setDiscountPercentage(Double discountPercentage) {
+        this.discountPercentage = discountPercentage;
+    }
+
+    public Double getWordLimitForDiscount() {
+        return wordLimitForDiscount;
+    }
+
+    public void setWordLimitForDiscount(Double wordLimitForDiscount) {
+        this.wordLimitForDiscount = wordLimitForDiscount;
+    }
+
+    public void setSpokenLanguages(List<String> spokenLanguages) {
+        this.spokenLanguages = spokenLanguages;
+    }
+
+    public void setRatePerWord(Double ratePerWord) {
+        this.ratePerWord = ratePerWord;
     }
 
 }
