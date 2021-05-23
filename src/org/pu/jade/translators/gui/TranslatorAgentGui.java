@@ -28,7 +28,7 @@ public class TranslatorAgentGui extends TranslationGuiBase {
             @Override
             public void actionPerformed(ActionEvent e) {
                 List<String> selectedValues = languagesJlist.getSelectedValuesList();
-                String rate = textField.getText();
+                String rate = rateTextField.getText();
                 String percentage = discountPercentageTextField.getText();
                 String wordLimit = wordLimitField.getText();
                 System.out.println(languagesJlist.getSelectedValuesList());

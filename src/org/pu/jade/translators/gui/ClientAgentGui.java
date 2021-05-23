@@ -4,7 +4,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.pu.jade.translators.agents.ClientAgent;
 
-import javax.swing.*;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JLabel;
+import javax.swing.ListSelectionModel;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,11 +27,11 @@ public class ClientAgentGui extends TranslationGuiBase {
         components.add(0, sourceLanguage);
 
         JLabel sourceLanguagesLabel = new JLabel();
-        sourceLanguagesLabel.setText("select source language");
+        sourceLanguagesLabel.setText("select target language");
         components.add(0, sourceLanguagesLabel);
 
         JLabel targetLanguagesLabel = new JLabel();
-        targetLanguagesLabel.setText("select target languages");
+        targetLanguagesLabel.setText("select source languages");
         components.add(0, targetLanguagesLabel);
 
         components.forEach((component) -> languagesPanel.add(component));
@@ -37,10 +40,23 @@ public class ClientAgentGui extends TranslationGuiBase {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                String srcLanguage = "";
+                try {
+                    srcLanguage = sourceLanguage.getSelectedValue().toString();
+                    System.out.println(srcLanguage);
+                }
+                catch (NullPointerException ex) {
+                    JOptionPane.showMessageDialog(frame, "Please, select source language!");
+                }
                 List<String> selectedTargetLanguages = languagesJlist.getSelectedValuesList();
-                String rate = textField.getText();
+                String rate = rateTextField.getText();
                 System.out.println(languagesJlist.getSelectedValuesList());
                 System.out.println(rate);
+
+                if (StringUtils.isEmpty(srcLanguage)) {
+                    JOptionPane.showMessageDialog(frame, "Please, select source language!");
+                    return;
+                }
 
                 if (selectedTargetLanguages.size() <= 1) {
                     JOptionPane.showMessageDialog(frame, "Please, select atleast one target language!");
@@ -54,7 +70,8 @@ public class ClientAgentGui extends TranslationGuiBase {
 
                 clientAgent.setTargetLanguages(selectedTargetLanguages);
                 clientAgent.setDesiredRatePerWord(Double.parseDouble(rate));
-                frame.hide();
+                clientAgent.setSourceLanguage(srcLanguage);
+                hide();
             }
         });
         show();

@@ -19,7 +19,7 @@ public class TranslationGuiBase extends JFrame {
     protected JFrame frame;
     protected JButton submitButton;
     protected JList languagesJlist;
-    protected JTextField textField;
+    protected JTextField rateTextField;
     protected List<JComponent> components = new ArrayList<>();
     protected JPanel languagesPanel;
 
@@ -34,14 +34,14 @@ public class TranslationGuiBase extends JFrame {
         components.add(languagesJlist);
         frame.add(languagesPanel);
 
-        textField = new JTextField(16);
+        rateTextField = new JTextField(16);
         JPanel middlePanel = new JPanel();
         JLabel rateLabel = new JLabel();
         rateLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        rateLabel.setLabelFor(textField);
+        rateLabel.setLabelFor(rateTextField);
         rateLabel.setText("Rate by word: ");
         middlePanel.add(rateLabel);
-        middlePanel.add(textField);
+        middlePanel.add(rateTextField);
         components.add(middlePanel);
 
         submitButton = new JButton("Select languages");
