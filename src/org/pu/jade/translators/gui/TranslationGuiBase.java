@@ -1,14 +1,10 @@
 package org.pu.jade.translators.gui;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JList;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.pu.jade.translators.conf.Constants.languages;
 
@@ -17,16 +13,18 @@ public class TranslationGuiBase extends JFrame {
     protected JButton submitButton;
     protected JList languagesJlist;
     protected JTextField textField;
+    protected List<JComponent> components = new ArrayList<>();
+    protected JPanel languagesPanel;
 
     public TranslationGuiBase() {
         frame = new JFrame("frame");
 
         //create a panel
-        JPanel languagesPanel = new JPanel(new GridLayout(3,3));
+        languagesPanel = new JPanel(new GridLayout(3,4));
 
         languagesJlist = new JList(languages);
         languagesJlist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        languagesPanel.add(languagesJlist);
+        components.add(languagesJlist);
         frame.add(languagesPanel);
 
         textField = new JTextField(16);
@@ -37,12 +35,12 @@ public class TranslationGuiBase extends JFrame {
         rateLabel.setText("Rate by word: ");
         middlePanel.add(rateLabel);
         middlePanel.add(textField);
-        languagesPanel.add(middlePanel);
+        components.add(middlePanel);
 
         submitButton = new JButton("Select languages");
         JPanel bottomPanel = new JPanel();
         bottomPanel.add(submitButton);
-        languagesPanel.add(bottomPanel);
+        components.add(bottomPanel);
 
         //set the size of frame
         frame.setSize(400,400);

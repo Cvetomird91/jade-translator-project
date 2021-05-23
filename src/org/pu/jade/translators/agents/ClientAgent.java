@@ -12,8 +12,10 @@ import java.util.List;
 
 public class ClientAgent extends Agent {
 
-    List<String> desiredLanguages;
+    String sourceLanguage;
+    List<String> targetLanguages;
     Double desiredRatePerWord;
+    Integer textWordCount;
     ClientAgentGui gui;
 
     @Override
@@ -45,12 +47,12 @@ public class ClientAgent extends Agent {
         });
     }
 
-    public List<String> getDesiredLanguages() {
-        return desiredLanguages;
+    public List<String> getTargetLanguages() {
+        return targetLanguages;
     }
 
-    public void setDesiredLanguages(List<String> desiredLanguages) {
-        this.desiredLanguages = desiredLanguages;
+    public void setTargetLanguages(List<String> targetLanguages) {
+        this.targetLanguages = targetLanguages;
     }
 
     public Double getDesiredRatePerWord() {
@@ -59,5 +61,21 @@ public class ClientAgent extends Agent {
 
     public void setDesiredRatePerWord(Double desiredRatePerWord) {
         this.desiredRatePerWord = desiredRatePerWord;
+    }
+
+    public String getSourceLanguage() {
+        return sourceLanguage;
+    }
+
+    public void setSourceLanguage(String sourceLanguage) {
+        this.sourceLanguage = sourceLanguage;
+    }
+
+    public Integer getTextWordCount() {
+        return textWordCount;
+    }
+
+    public void setTextWordCount(Integer textWordCount) {
+        this.textWordCount = textWordCount;
     }
 }

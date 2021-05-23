@@ -14,6 +14,9 @@ import java.util.List;
 public class TranslatorAgentGui extends TranslationGuiBase {
 
     public TranslatorAgentGui(TranslatorAgent translatorAgent) {
+
+        components.forEach((component) -> languagesPanel.add(component));
+
         submitButton.addActionListener(new ActionListener() {
 
             @Override
