@@ -14,7 +14,7 @@ import jade.lang.acl.MessageTemplate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.pu.jade.translators.gui.ClientAgentGui;
-import org.pu.jade.translators.models.ClientLanguages;
+import org.pu.jade.translators.models.ClientPreferences;
 
 import java.util.List;
 
@@ -77,15 +77,14 @@ public class ClientAgent extends Agent {
                                     msg.addReceiver(translators[i]);
                                 }
 
-                                //todo: send request as JSON
-                                ClientLanguages clientLanguages = ClientLanguages.builder()
+                                ClientPreferences clientPreferences = ClientPreferences.builder()
                                         .sourceLanguage(sourceLanguage)
                                         .targetLanguages(targetLanguages)
                                         .build();
 
                                 try {
                                     //System.out.println(objectMapper.writeValueAsString(clientLanguages));
-                                    msg.setContent(objectMapper.writeValueAsString(clientLanguages));
+                                    msg.setContent(objectMapper.writeValueAsString(clientPreferences));
                                 } catch (JsonProcessingException e) {
                                     e.printStackTrace();
                                 }

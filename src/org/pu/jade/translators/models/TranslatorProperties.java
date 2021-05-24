@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class TranslatorLanguages {
+public class TranslatorProperties {
     List<String> spokenLanguages;
 }

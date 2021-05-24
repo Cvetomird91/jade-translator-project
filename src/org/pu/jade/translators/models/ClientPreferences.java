@@ -1,13 +1,17 @@
 package org.pu.jade.translators.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Builder
-public class ClientLanguages {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ClientPreferences {
     String sourceLanguage;
     List<String> targetLanguages;
 }
