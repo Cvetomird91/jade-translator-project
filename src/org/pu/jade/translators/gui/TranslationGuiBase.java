@@ -27,7 +27,7 @@ public class TranslationGuiBase extends JFrame {
         frame = new JFrame("Agent Settings");
 
         //create a panel
-        languagesPanel = new JPanel(new GridLayout(3,4));
+        languagesPanel = new JPanel(new GridLayout(3,5));
 
         languagesJlist = new JList(languages);
         languagesJlist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -50,7 +50,7 @@ public class TranslationGuiBase extends JFrame {
         components.add(bottomPanel);
 
         //set the size of frame
-        frame.setSize(600,400);
+        frame.setSize(600,600);
     }
 
     public void show() {

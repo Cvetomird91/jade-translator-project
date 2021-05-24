@@ -7,6 +7,8 @@ import org.pu.jade.translators.agents.ClientAgent;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 
 import java.awt.event.ActionEvent;
@@ -20,7 +22,8 @@ import static org.pu.jade.translators.conf.Constants.languages;
 
 public class ClientAgentGui extends TranslationGuiBase {
 
-    JList sourceLanguage;
+    private JList sourceLanguage;
+    private JTextField wordCountField;
 
     public ClientAgentGui(ClientAgent clientAgent) {
 
@@ -35,6 +38,23 @@ public class ClientAgentGui extends TranslationGuiBase {
         JLabel targetLanguagesLabel = new JLabel();
         targetLanguagesLabel.setText("select source languages");
         components.add(0, targetLanguagesLabel);
+
+        JLabel emptyLabel = new JLabel();
+        emptyLabel.setText(" ");
+        JLabel emptyLabel2 = new JLabel();
+        emptyLabel2.setText(" ");
+        components.add(2, emptyLabel);
+        components.add(5, emptyLabel2);
+
+        wordCountField = new JTextField(16);
+        JPanel wordCountPanel = new JPanel();
+        JLabel wordCountLabel = new JLabel();
+        wordCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        wordCountLabel.setLabelFor(wordCountField);
+        wordCountLabel.setText("Text word count: ");
+        wordCountPanel.add(wordCountLabel);
+        wordCountPanel.add(wordCountField);
+        components.add(components.size()-1, wordCountPanel);
 
         components.forEach((component) -> languagesPanel.add(component));
 
@@ -52,6 +72,7 @@ public class ClientAgentGui extends TranslationGuiBase {
                 }
                 List<String> selectedTargetLanguages = languagesJlist.getSelectedValuesList();
                 String rate = rateTextField.getText();
+                String wordCount = wordCountField.getText();
                 System.out.println(languagesJlist.getSelectedValuesList());
                 System.out.println(rate);
 
@@ -72,6 +93,11 @@ public class ClientAgentGui extends TranslationGuiBase {
 
                 if (!NumberUtils.isCreatable(rate) || StringUtils.isEmpty(rate)) {
                     JOptionPane.showMessageDialog(frame, "Rate is empty or not a valid value!");
+                    return;
+                }
+
+                if (!NumberUtils.isCreatable(wordCount) || StringUtils.isEmpty(wordCount) || Double.parseDouble(wordCount) < 1) {
+                    JOptionPane.showMessageDialog(frame, "Text word count is empty or not a valid value!");
                     return;
                 }
 

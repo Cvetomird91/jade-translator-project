@@ -13,6 +13,8 @@ import org.pu.jade.translators.gui.TranslatorAgentGui;
 
 import java.util.List;
 
+import static org.pu.jade.translators.conf.Constants.COMMUNICATION_INIT_MESSAGE;
+
 public class TranslatorAgent extends Agent {
 
     private List<String> spokenLanguages;
@@ -20,6 +22,8 @@ public class TranslatorAgent extends Agent {
     private Double discountPercentage;
     private Double wordLimitForDiscount;
     private TranslatorAgentGui gui;
+    MessageTemplate mt;
+    ACLMessage msg;
 
     @Override
     public void setup() {
@@ -47,20 +51,27 @@ public class TranslatorAgent extends Agent {
             public void action() {
 
                 if (!CollectionUtils.isEmpty(spokenLanguages)) {
-                    MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+                    MessageTemplate mt = MessageTemplate.MatchConversationId(COMMUNICATION_INIT_MESSAGE);
 
                     ACLMessage msg = myAgent.receive(mt);
 
                     if (msg != null) {
-                        String languages = msg.getContent();
-                        System.out.println(myAgent.getName() + " Desired Languages: " + languages);
-                        System.out.println(myAgent.getName() + " Spoken Languages: " + spokenLanguages);
+                        if (msg.getPerformative() == ACLMessage.CFP) {
 
-                        ACLMessage replyMsg = msg.createReply();//започваме подоготовка за отговор
-                        replyMsg.setContent("[Responce]: Spoken Languages: " + spokenLanguages +", rate per word: " + ratePerWord);//изпращаме цената
-                        replyMsg.setPerformative(ACLMessage.PROPOSE);
+                            String languages = msg.getContent();
+                            System.out.println(myAgent.getName() + " Desired Languages: " + languages);
+                            System.out.println(myAgent.getName() + " Spoken Languages: " + spokenLanguages);
 
-                        myAgent.send(replyMsg);
+                            ACLMessage replyMsg = msg.createReply();
+                            replyMsg.setContent("[Responce]: Spoken Languages: " + spokenLanguages + ", rate per word: " + ratePerWord);//изпращаме цената
+                            replyMsg.setPerformative(ACLMessage.PROPOSE);
+
+                            myAgent.send(replyMsg);
+                        }
+
+                        if (msg.getPerformative() == ACLMessage.CONFIRM) {
+                            System.out.println(msg.getContent());
+                        }
 
                     }
                 }
