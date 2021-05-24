@@ -41,12 +41,12 @@ public class TranslatorAgent extends Agent {
             e.printStackTrace();
         }
 
-        if (!CollectionUtils.isEmpty(spokenLanguages)) {
-            addBehaviour(new CyclicBehaviour() {
+        addBehaviour(new CyclicBehaviour() {
 
-                @Override
-                public void action() {
+            @Override
+            public void action() {
 
+                if (!CollectionUtils.isEmpty(spokenLanguages)) {
                     MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
 
                     ACLMessage msg = myAgent.receive(mt);
@@ -55,10 +55,17 @@ public class TranslatorAgent extends Agent {
                         String languages = msg.getContent();
                         System.out.println(myAgent.getName() + " Desired Languages: " + languages);
                         System.out.println(myAgent.getName() + " Spoken Languages: " + spokenLanguages);
+
+                        ACLMessage replyMsg = msg.createReply();//започваме подоготовка за отговор
+                        replyMsg.setContent("[Responce]: Spoken Languages: " + spokenLanguages +", rate per word: " + ratePerWord);//изпращаме цената
+                        replyMsg.setPerformative(ACLMessage.PROPOSE);
+
+                        myAgent.send(replyMsg);
+
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     public Double getDiscountPercentage() {
