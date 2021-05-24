@@ -6,6 +6,9 @@ import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import org.apache.commons.collections4.CollectionUtils;
 import org.pu.jade.translators.gui.TranslatorAgentGui;
 
 import java.util.List;
@@ -38,13 +41,24 @@ public class TranslatorAgent extends Agent {
             e.printStackTrace();
         }
 
-        addBehaviour(new CyclicBehaviour() {
+        if (!CollectionUtils.isEmpty(spokenLanguages)) {
+            addBehaviour(new CyclicBehaviour() {
 
-            @Override
-            public void action() {
+                @Override
+                public void action() {
 
-            }
-        });
+                    MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+
+                    ACLMessage msg = myAgent.receive(mt);
+
+                    if (msg != null) {
+                        String languages = msg.getContent();
+                        System.out.println(myAgent.getName() + " Desired Languages: " + languages);
+                        System.out.println(myAgent.getName() + " Spoken Languages: " + spokenLanguages);
+                    }
+                }
+            });
+        }
     }
 
     public Double getDiscountPercentage() {
