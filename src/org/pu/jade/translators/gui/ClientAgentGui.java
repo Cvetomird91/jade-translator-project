@@ -60,8 +60,13 @@ public class ClientAgentGui extends TranslationGuiBase {
                     return;
                 }
 
-                if (selectedTargetLanguages.size() <= 1) {
+                if (selectedTargetLanguages.size() < 1) {
                     JOptionPane.showMessageDialog(frame, "Please, select atleast one target language!");
+                    return;
+                }
+
+                if (selectedTargetLanguages.contains(srcLanguage)) {
+                    JOptionPane.showMessageDialog(frame, "Source language cannot be part of target languages!");
                     return;
                 }
 
