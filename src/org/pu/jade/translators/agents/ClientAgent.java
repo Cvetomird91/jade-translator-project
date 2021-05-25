@@ -189,10 +189,57 @@ public class ClientAgent extends Agent {
                                         }
                                     }
                                 }
+
+                                correspondingTranslatorProperties.remove(fullMatch.get(i));
                             }
 
                             //if full language match deals don't match the requirements work with individual
                             //translators
+                            List<String> handledLanguages = new ArrayList<>();
+                            targetLanguages.forEach((lang) -> {
+                                List<TranslatorProperties> matchingAgents = correspondingTranslatorProperties
+                                        .stream()
+                                        .filter((agent) -> agent.getSpokenLanguages()
+                                                .contains(lang))
+                                        .collect(Collectors.toList());
+
+                                matchingAgents.forEach((agent) -> {
+                                    if(desiredRatePerWord >= agent.getRatePerWord()) {
+                                        acceptOffer(myAgent, agent.getAgentAid(), "Agreed to have the text translated to "
+                                                + lang + " for " + agent.getRatePerWord() + " per word.");
+                                        handledLanguages.add(lang);
+                                        return;
+                                    }
+
+                                    if (desiredRatePerWord < agent.getRatePerWord()) {
+                                        //check if offering 10% more would fit the budget
+                                        if (desiredRatePerWord * affordablePriceMargin >= agent.getRatePerWord()) {
+                                            acceptOffer(myAgent, agent.getAgentAid(), "Agreed to have the text translated to "
+                                                    + lang + " for " + agent.getRatePerWord() + " per word.");
+                                            handledLanguages.add(lang);
+                                            return;
+                                        }
+
+                                        if(wordCount > agent.getWordLimitForDiscount()) {
+                                            double newPrice = agent.getRatePerWord() * (1 - agent.getDiscountPercentage()/100);
+                                            if (newPrice < desiredRatePerWord) {
+                                                acceptOffer(myAgent, agent.getAgentAid(), "Agreed to have the text translated to "
+                                                        + lang + " for " + newPrice + " per word.");
+                                                handledLanguages.add(lang);
+                                                return;
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+
+                            targetLanguages.removeAll(handledLanguages);
+                            if (targetLanguages.isEmpty()) {
+                                myAgent.doDelete();
+                            } else {
+                                step = 1;
+                                notifiedForNoTranslators = false;
+                            }
 
                             break;
                     }
