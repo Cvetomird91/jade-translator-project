@@ -104,6 +104,7 @@ public class ClientAgentGui extends TranslationGuiBase {
                 clientAgent.setTargetLanguages(selectedTargetLanguages);
                 clientAgent.setDesiredRatePerWord(Double.parseDouble(rate));
                 clientAgent.setSourceLanguage(srcLanguage);
+                clientAgent.setWordCount(Integer.parseInt(wordCount));
                 hide();
             }
         });

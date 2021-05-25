@@ -87,12 +87,14 @@ public class TranslatorAgent extends Agent {
                             replyMsg.setPerformative(ACLMessage.PROPOSE);
 
                             myAgent.send(replyMsg);
-//                                }
-//                            }
 
                         }
 
                         if (msg.getPerformative() == ACLMessage.CONFIRM) {
+                            System.out.println(msg.getContent());
+                        }
+
+                        if (msg.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
                             System.out.println(msg.getContent());
                         }
 

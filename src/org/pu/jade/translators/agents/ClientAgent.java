@@ -28,6 +28,7 @@ public class ClientAgent extends Agent {
     private String sourceLanguage;
     private List<String> targetLanguages = new ArrayList<>();
     private Double desiredRatePerWord;
+    private Integer wordCount;
     private ClientAgentGui gui;
     private List<AID> translators = new ArrayList<>();
     private List<TranslatorProperties> correspondingTranslatorProperties = new ArrayList<>();
@@ -37,6 +38,10 @@ public class ClientAgent extends Agent {
     private int step = 0;
     private boolean notifiedForNoTranslators;
     private ObjectMapper objectMapper = new ObjectMapper();
+    private ClientPreferences clientPreferences;
+    private static final Double affordablePriceMargin = 1.1;
+
+    //todo: remove when you finish step 2
     private boolean debug;
 
     @Override
@@ -80,7 +85,7 @@ public class ClientAgent extends Agent {
                                     msg.addReceiver(translators.get(i));
                                 }
 
-                                ClientPreferences clientPreferences = ClientPreferences.builder()
+                                clientPreferences = ClientPreferences.builder()
                                         .sourceLanguage(sourceLanguage)
                                         .targetLanguages(targetLanguages)
                                         .build();
@@ -148,21 +153,74 @@ public class ClientAgent extends Agent {
                                 System.out.println(correspondingTranslatorProperties);
                                 debug = true;
                             }
-//                                    msg = new ACLMessage(ACLMessage.CONFIRM);
-//                                    msg.setContent("Success!");
-//
-//                                    msg.setConversationId(COMMUNICATION_INIT_MESSAGE);
-//                                    msg.setReplyWith("start-" + System.currentTimeMillis());
-//
-//                                    msg.addReceiver(reply.getSender());
-//                                    myAgent.send(msg);
+
+                            List<TranslatorProperties> fullMatch = correspondingTranslatorProperties
+                                    .stream()
+                                    .filter((agent) -> agent.getSpokenLanguages()
+                                            .containsAll(clientPreferences.getTargetLanguages()))
+                                    .collect(Collectors.toList());
+
+                            //check if any of the translators that are fluent in all the desired languages at once
+                            //have a feasable rate
+                            for (int i = 0; i < fullMatch.size(); i++) {
+                                if(desiredRatePerWord >= fullMatch.get(i).getRatePerWord()) {
+                                    acceptOffer(myAgent, fullMatch.get(i).getAgentAid(), "Agreed to have the text translated to "
+                                            + clientPreferences.getTargetLanguages() + " for " + fullMatch.get(i).getRatePerWord() + " per word.");
+                                    myAgent.doDelete();
+                                    break;
+                                }
+
+                                if (desiredRatePerWord < fullMatch.get(i).getRatePerWord()) {
+                                    //check if offering 10% more would fit the budget
+                                    if (desiredRatePerWord * affordablePriceMargin >= fullMatch.get(i).getRatePerWord()) {
+                                        acceptOffer(myAgent, fullMatch.get(i).getAgentAid(), "Agreed to have the text translated to "
+                                                + clientPreferences.getTargetLanguages() + " for " + fullMatch.get(i).getRatePerWord() + " per word.");
+                                        myAgent.doDelete();
+                                        break;
+                                    }
+
+                                    if(wordCount > fullMatch.get(i).getWordLimitForDiscount()) {
+                                        double newPrice = fullMatch.get(i).getRatePerWord() * (1 - fullMatch.get(i).getDiscountPercentage()/100);
+                                        if (newPrice < desiredRatePerWord) {
+                                            acceptOffer(myAgent, fullMatch.get(i).getAgentAid(), "Agreed to have the text translated to "
+                                                    + clientPreferences.getTargetLanguages() + " for " + newPrice + " per word.");
+                                            myAgent.doDelete();
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            //if full language match deals don't match the requirements work with individual
+                            //translators
 
                             break;
                     }
                 }
             }
         });
+    }
 
+    private void acceptOffer(Agent myAgent, AID receiverAID, String message) {
+        msg = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+        msg.setContent(message);
+
+        msg.setConversationId(COMMUNICATION_INIT_MESSAGE);
+        msg.setReplyWith("start-" + System.currentTimeMillis());
+
+        msg.addReceiver(receiverAID);
+        myAgent.send(msg);
+    }
+
+    private void rejectOffer(Agent myAgent, AID receiverAID) {
+        msg = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
+        msg.setContent("Success!");
+
+        msg.setConversationId(COMMUNICATION_INIT_MESSAGE);
+        msg.setReplyWith("start-" + System.currentTimeMillis());
+
+        msg.addReceiver(receiverAID);
+        myAgent.send(msg);
     }
 
     public List<String> getTargetLanguages() {
@@ -187,6 +245,10 @@ public class ClientAgent extends Agent {
 
     public void setSourceLanguage(String sourceLanguage) {
         this.sourceLanguage = sourceLanguage;
+    }
+
+    public void setWordCount(Integer wordCount) {
+        this.wordCount = wordCount;
     }
 
 }
