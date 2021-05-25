@@ -15,24 +15,29 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.pu.jade.translators.gui.ClientAgentGui;
 import org.pu.jade.translators.models.ClientPreferences;
+import org.pu.jade.translators.models.TranslatorProperties;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.pu.jade.translators.conf.Constants.COMMUNICATION_INIT_MESSAGE;
 
 public class ClientAgent extends Agent {
 
     private String sourceLanguage;
-    private List<String> targetLanguages;
+    private List<String> targetLanguages = new ArrayList<>();
     private Double desiredRatePerWord;
     private ClientAgentGui gui;
-    private AID[] translators;
+    private List<AID> translators = new ArrayList<>();
+    private List<TranslatorProperties> correspondingTranslatorProperties = new ArrayList<>();
     private ACLMessage msg;
     private ACLMessage reply;
     private MessageTemplate mt;
     private int step = 0;
     private boolean notifiedForNoTranslators;
     private ObjectMapper objectMapper = new ObjectMapper();
+    private boolean debug;
 
     @Override
     public void setup() {
@@ -60,21 +65,19 @@ public class ClientAgent extends Agent {
                             try {
                                 DFAgentDescription[] searchResult = DFService.search(myAgent, dad);
 
-                                translators = new AID[searchResult.length];
-
                                 for (int i = 0; i < searchResult.length; i++) {
-                                    translators[i] = searchResult[i].getName();
+                                    translators.add(searchResult[i].getName());
                                 }
                             } catch (FIPAException e) {
                                 e.printStackTrace();
                             }
 
-                            if(translators.length > 0) {
+                            if(translators.size() > 0) {
                                 System.out.println(myAgent.getName() + ": Sending queries for offers");
                                 msg = new ACLMessage(ACLMessage.CFP);
 
-                                for (int i = 0; i < translators.length; i++) {
-                                    msg.addReceiver(translators[i]);
+                                for (int i = 0; i < translators.size(); i++) {
+                                    msg.addReceiver(translators.get(i));
                                 }
 
                                 ClientPreferences clientPreferences = ClientPreferences.builder()
@@ -112,18 +115,47 @@ public class ClientAgent extends Agent {
                             if (reply != null) {
                                 if (reply.getPerformative() == ACLMessage.PROPOSE) {
                                     System.out.println(reply.getContent());
+                                    translators.remove(reply.getSender());
+                                    TranslatorProperties translatorProperties;
+                                    try {
+                                        translatorProperties = objectMapper.readValue(reply.getContent(), TranslatorProperties.class);
+                                        translatorProperties.setAgentAid(reply.getSender());
 
-                                    msg = new ACLMessage(ACLMessage.CONFIRM);
-                                    msg.setContent("Success!");
+                                        if (translatorProperties.getSpokenLanguages().contains(sourceLanguage)) {
+                                            List<String> targetLanguagesSupportedByTranslator = translatorProperties.getSpokenLanguages()
+                                                    .stream()
+                                                    .filter((lang) -> targetLanguages.contains(lang) && lang != sourceLanguage)
+                                                    .collect(Collectors.toList());
 
-                                    msg.setConversationId(COMMUNICATION_INIT_MESSAGE);
-                                    msg.setReplyWith("start-" + System.currentTimeMillis());
+                                            if(!CollectionUtils.isEmpty(targetLanguagesSupportedByTranslator)) {
+                                                correspondingTranslatorProperties.add(translatorProperties);
+                                            }
 
-                                    //todo: just testing
-                                    msg.addReceiver(translators[0]);
-                                    myAgent.send(msg);
+                                        }
+                                    } catch (JsonProcessingException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    if (CollectionUtils.isEmpty(translators)) {
+                                        step++;
+                                    }
                                 }
                             }
+
+                            break;
+                        case 2:
+                            if (!debug) {
+                                System.out.println(correspondingTranslatorProperties);
+                                debug = true;
+                            }
+//                                    msg = new ACLMessage(ACLMessage.CONFIRM);
+//                                    msg.setContent("Success!");
+//
+//                                    msg.setConversationId(COMMUNICATION_INIT_MESSAGE);
+//                                    msg.setReplyWith("start-" + System.currentTimeMillis());
+//
+//                                    msg.addReceiver(reply.getSender());
+//                                    myAgent.send(msg);
 
                             break;
                     }

@@ -13,9 +13,9 @@ import jade.lang.acl.MessageTemplate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.pu.jade.translators.gui.TranslatorAgentGui;
 import org.pu.jade.translators.models.ClientPreferences;
+import org.pu.jade.translators.models.TranslatorProperties;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.pu.jade.translators.conf.Constants.COMMUNICATION_INIT_MESSAGE;
 
@@ -51,9 +51,6 @@ public class TranslatorAgent extends Agent {
         }
 
         addBehaviour(new CyclicBehaviour() {
-
-            private ClientPreferences clientPreferences;
-
             @Override
             public void action() {
 
@@ -66,27 +63,32 @@ public class TranslatorAgent extends Agent {
                         if (msg.getPerformative() == ACLMessage.CFP) {
 
                             String clientRequest = msg.getContent();
-                            System.out.println(myAgent.getName() + " Client perefences: " + clientRequest);
+                            System.out.println(myAgent.getName() + " Client preferences: " + clientRequest);
+                            ClientPreferences clientPreferences;
                             try {
                                 clientPreferences = objectMapper.readValue(clientRequest, ClientPreferences.class);
                             } catch (JsonProcessingException e) {
                                 e.printStackTrace();
                             }
+                            ACLMessage replyMsg = msg.createReply();
 
-                            if (spokenLanguages.contains(clientPreferences.getSourceLanguage())) {
-                                List<String> targetLanguages = spokenLanguages
-                                                                .stream()
-                                                                .filter((lang) -> clientPreferences.getTargetLanguages().contains(lang))
-                                                                .collect(Collectors.toList());
+                            TranslatorProperties translatorProperties = TranslatorProperties.builder()
+                                    .spokenLanguages(spokenLanguages)
+                                    .ratePerWord(ratePerWord)
+                                    .wordLimitForDiscount(wordLimitForDiscount)
+                                    .discountPercentage(discountPercentage)
+                                    .build();
 
-                                if (!CollectionUtils.isEmpty(targetLanguages)) {
-                                    ACLMessage replyMsg = msg.createReply();
-                                    replyMsg.setContent("[Responce]: Spoken Languages: " + spokenLanguages + ", rate per word: " + ratePerWord);//изпращаме цената
-                                    replyMsg.setPerformative(ACLMessage.PROPOSE);
-
-                                    myAgent.send(replyMsg);
-                                }
+                            try {
+                                replyMsg.setContent(objectMapper.writeValueAsString(translatorProperties));
+                            } catch (JsonProcessingException e) {
+                                e.printStackTrace();
                             }
+                            replyMsg.setPerformative(ACLMessage.PROPOSE);
+
+                            myAgent.send(replyMsg);
+//                                }
+//                            }
 
                         }
 
