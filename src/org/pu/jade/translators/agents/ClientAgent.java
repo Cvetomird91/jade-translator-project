@@ -18,7 +18,9 @@ import org.pu.jade.translators.models.ClientPreferences;
 import org.pu.jade.translators.models.TranslatorProperties;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.pu.jade.translators.conf.Constants.COMMUNICATION_INIT_MESSAGE;
@@ -30,7 +32,7 @@ public class ClientAgent extends Agent {
     private Double desiredRatePerWord;
     private Integer wordCount;
     private ClientAgentGui gui;
-    private List<AID> translators = new ArrayList<>();
+    private Set<AID> translators = new HashSet<>();
     private List<TranslatorProperties> correspondingTranslatorProperties = new ArrayList<>();
     private ACLMessage msg;
     private ACLMessage reply;
@@ -81,8 +83,8 @@ public class ClientAgent extends Agent {
                                 System.out.println(myAgent.getName() + ": Sending queries for offers");
                                 msg = new ACLMessage(ACLMessage.CFP);
 
-                                for (int i = 0; i < translators.size(); i++) {
-                                    msg.addReceiver(translators.get(i));
+                                for (AID translator : translators) {
+                                    msg.addReceiver(translator);
                                 }
 
                                 clientPreferences = ClientPreferences.builder()
@@ -237,7 +239,7 @@ public class ClientAgent extends Agent {
                             if (targetLanguages.isEmpty()) {
                                 myAgent.doDelete();
                             } else {
-                                step = 1;
+                                step = 0;
                                 notifiedForNoTranslators = false;
                             }
 
