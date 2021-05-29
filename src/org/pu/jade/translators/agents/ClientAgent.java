@@ -42,6 +42,7 @@ public class ClientAgent extends Agent {
     private ObjectMapper objectMapper = new ObjectMapper();
     private ClientPreferences clientPreferences;
     private static final Double affordablePriceMargin = 1.1;
+    private boolean saleComplete;
 
     //todo: remove when you finish step 2
     private boolean debug;
@@ -59,6 +60,7 @@ public class ClientAgent extends Agent {
 
                     switch (step) {
                         case 0:
+                            saleComplete = false;
                             if (!notifiedForNoTranslators) {
                                 System.out.println(myAgent.getName() + ": Looking for translating from " + sourceLanguage + " to " + targetLanguages);
                             }
@@ -168,6 +170,7 @@ public class ClientAgent extends Agent {
                                 if(desiredRatePerWord >= fullMatch.get(i).getRatePerWord()) {
                                     acceptOffer(myAgent, fullMatch.get(i).getAgentAid(), "Agreed to have the text translated to "
                                             + clientPreferences.getTargetLanguages() + " for " + fullMatch.get(i).getRatePerWord() + " per word.");
+                                    saleComplete = true;
                                     myAgent.doDelete();
                                     break;
                                 }
@@ -177,6 +180,7 @@ public class ClientAgent extends Agent {
                                     if (desiredRatePerWord * affordablePriceMargin >= fullMatch.get(i).getRatePerWord()) {
                                         acceptOffer(myAgent, fullMatch.get(i).getAgentAid(), "Agreed to have the text translated to "
                                                 + clientPreferences.getTargetLanguages() + " for " + fullMatch.get(i).getRatePerWord() + " per word.");
+                                        saleComplete = true;
                                         myAgent.doDelete();
                                         break;
                                     }
@@ -187,6 +191,7 @@ public class ClientAgent extends Agent {
                                             acceptOffer(myAgent, fullMatch.get(i).getAgentAid(), "Agreed to have the text translated to "
                                                     + clientPreferences.getTargetLanguages() + " for " + newPrice + " per word.");
                                             myAgent.doDelete();
+                                            saleComplete = true;
                                             break;
                                         }
                                     }
@@ -195,52 +200,54 @@ public class ClientAgent extends Agent {
                                 correspondingTranslatorProperties.remove(fullMatch.get(i));
                             }
 
-                            //if full language match deals don't match the requirements work with individual
-                            //translators
-                            List<String> handledLanguages = new ArrayList<>();
-                            targetLanguages.forEach((lang) -> {
-                                List<TranslatorProperties> matchingAgents = correspondingTranslatorProperties
-                                        .stream()
-                                        .filter((agent) -> agent.getSpokenLanguages()
-                                                .contains(lang))
-                                        .collect(Collectors.toList());
+                            if (!saleComplete) {
+                                //if full language match deals don't match the requirements work with individual
+                                //translators
+                                List<String> handledLanguages = new ArrayList<>();
+                                targetLanguages.forEach((lang) -> {
+                                    List<TranslatorProperties> matchingAgents = correspondingTranslatorProperties
+                                            .stream()
+                                            .filter((agent) -> agent.getSpokenLanguages()
+                                                    .contains(lang))
+                                            .collect(Collectors.toList());
 
-                                matchingAgents.forEach((agent) -> {
-                                    if(desiredRatePerWord >= agent.getRatePerWord()) {
-                                        acceptOffer(myAgent, agent.getAgentAid(), "Agreed to have the text translated to "
-                                                + lang + " for " + agent.getRatePerWord() + " per word.");
-                                        handledLanguages.add(lang);
-                                        return;
-                                    }
-
-                                    if (desiredRatePerWord < agent.getRatePerWord()) {
-                                        //check if offering 10% more would fit the budget
-                                        if (desiredRatePerWord * affordablePriceMargin >= agent.getRatePerWord()) {
+                                    matchingAgents.forEach((agent) -> {
+                                        if (desiredRatePerWord >= agent.getRatePerWord()) {
                                             acceptOffer(myAgent, agent.getAgentAid(), "Agreed to have the text translated to "
                                                     + lang + " for " + agent.getRatePerWord() + " per word.");
                                             handledLanguages.add(lang);
                                             return;
                                         }
 
-                                        if(wordCount > agent.getWordLimitForDiscount()) {
-                                            double newPrice = agent.getRatePerWord() * (1 - agent.getDiscountPercentage()/100);
-                                            if (newPrice < desiredRatePerWord) {
+                                        if (desiredRatePerWord < agent.getRatePerWord()) {
+                                            //check if offering 10% more would fit the budget
+                                            if (desiredRatePerWord * affordablePriceMargin >= agent.getRatePerWord()) {
                                                 acceptOffer(myAgent, agent.getAgentAid(), "Agreed to have the text translated to "
-                                                        + lang + " for " + newPrice + " per word.");
+                                                        + lang + " for " + agent.getRatePerWord() + " per word.");
                                                 handledLanguages.add(lang);
                                                 return;
                                             }
-                                        }
-                                    }
-                                });
-                            });
 
-                            targetLanguages.removeAll(handledLanguages);
-                            if (targetLanguages.isEmpty()) {
-                                myAgent.doDelete();
-                            } else {
-                                step = 0;
-                                notifiedForNoTranslators = false;
+                                            if (wordCount > agent.getWordLimitForDiscount()) {
+                                                double newPrice = agent.getRatePerWord() * (1 - agent.getDiscountPercentage() / 100);
+                                                if (newPrice < desiredRatePerWord) {
+                                                    acceptOffer(myAgent, agent.getAgentAid(), "Agreed to have the text translated to "
+                                                            + lang + " for " + newPrice + " per word.");
+                                                    handledLanguages.add(lang);
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                    });
+                                });
+
+                                targetLanguages.removeAll(handledLanguages);
+                                if (targetLanguages.isEmpty()) {
+                                    myAgent.doDelete();
+                                } else {
+                                    step = 0;
+                                    notifiedForNoTranslators = false;
+                                }
                             }
 
                             break;
